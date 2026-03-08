@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mineral Spectroscopy - Digital Twin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .feature h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .feature p {
+            color: #666;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 Mineral Spectroscopy Digital Twin</h1>
+            <p>ASD Spectrometer Analysis - USGS Catalogue</p>
+        </header>
+        
+        <div class="card">
+            <h2 style="margin-bottom: 20px;">Welcome to Your Spectroscopy Dashboard</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Minerals</div>
+                    <div class="stat-value" id="total-minerals">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Samples</div>
+                    <div class="stat-value">1,276</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Wavelength Range</div>
+                    <div class="stat-value">0.35-2.5 µm</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Data Points</div>
+                    <div class="stat-value">2,151</div>
+                </div>
+            </div>
+            
+            <div class="button-group" style="margin-top: 30px;">
+                <a href="/viewer" class="btn btn-primary">📊 View Spectral Data</a>
+                <a href="/plots/mean_spectra_all.png" class="btn btn-secondary">📈 All Minerals Overview</a>
+                <a href="/plots/average_by_mineral.png" class="btn btn-secondary">📉 Average Spectra</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 style="margin-bottom: 20px;">Features</h2>
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🧪</div>
+                    <h3>Mineral Analysis</h3>
+                    <p>View reflectance spectra for each mineral with AREF/RREF separation</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3>Statistical Data</h3>
+                    <p>Access mean, min, and max reflectance values for all minerals</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔍</div>
+                    <h3>USGS Comparison</h3>
+                    <p>Compare your measurements with official USGS catalogue data</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📥</div>
+                    <h3>Data Export</h3>
+                    <p>Download spectral data and plots in multiple formats</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🤖</div>
+                    <h3>ML Classification</h3>
+                    <p>Trained model for mineral identification from spectra</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Rover Integration</h3>
+                    <p>Ready for deployment on rover spectrometer systems</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load total minerals count
+        fetch('/api/minerals')
+            .then(r => r.json())
+            .then(minerals => {
+                document.getElementById('total-minerals').textContent = minerals.length;
+            });
+    </script>
+</body>
+</html>

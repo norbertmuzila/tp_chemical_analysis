@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mineral Viewer - Spectroscopy Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .sidebar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .mineral-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .mineral-btn {
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            text-align: center;
+        }
+        
+        .mineral-btn:hover {
+            border-color: #667eea;
+            background: #f0f0f0;
+        }
+        
+        .mineral-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .mineral-title {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .plot-container {
+            text-align: center;
+            margin: 30px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .plot-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .plot-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .download-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔬 Mineral Spectroscopy Viewer</h1>
+        <p>Reflectance vs Wavelength Analysis - AREF/RREF Data</p>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h2>Select a Mineral:</h2>
+            <div class="mineral-selector" id="mineral-list">
+                <div class="loading">Loading minerals...</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div id="content">
+                <div class="loading">Select a mineral to view its spectral data</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let minerals = [];
+        let selectedMineral = "{{ selected_mineral }}";
+        
+        // Load mineral list
+        async function loadMinerals() {
+            try {
+                const response = await fetch('/api/minerals');
+                minerals = await response.json();
+                renderMineralList();
+                
+                // If a mineral was pre-selected, load it
+                if (selectedMineral) {
+                    loadMineral(selectedMineral);
+                }
+            } catch (error) {
+                console.error('Error loading minerals:', error);
+            }
+        }
+        
+        // Render mineral list
+        function renderMineralList() {
+            const listDiv = document.getElementById('mineral-list');
+            listDiv.innerHTML = minerals.map(mineral => 
+                `<button class="mineral-btn" onclick="loadMineral('${mineral}')" id="btn-${mineral}">${mineral}</button>`
+            ).join('');
+        }
+        
+        // Load mineral data
+        async function loadMineral(mineralName) {
+            selectedMineral = mineralName;
+            
+            // Update active button
+            document.querySelectorAll('.mineral-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${mineralName}`).classList.add('active');
+            
+            // Show loading
+            document.getElementById('content').innerHTML = '<div class="loading">Loading mineral data...</div>';
+            
+            try {
+                // Fetch stats
+                const statsRes = await fetch(`/api/mineral/${mineralName}`);
+                const stats = await statsRes.json();
+                
+                // Build content
+                let html = `
+                    <div class="mineral-title">
+                        <span>🧪</span>
+                        <span>${mineralName}</span>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Total Samples</div>
+                            <div class="stat-value">${stats.total_samples}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">AREF Samples</div>
+                            <div class="stat-value">${stats.aref_count}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">RREF Samples</div>
+                            <div class="stat-value">${stats.rref_count}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Mean Reflectance</div>
+                            <div class="stat-value">${stats.mean_reflectance ? stats.mean_reflectance.toFixed(4) : 'N/A'}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Min Reflectance</div>
+                            <div class="stat-value">${stats.min_reflectance ? stats.min_reflectance.toFixed(4) : 'N/A'}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Max Reflectance</div>
+                            <div class="stat-value">${stats.max_reflectance ? stats.max_reflectance.toFixed(4) : 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="plot-container">
+                        <div class="plot-title">Reflectance vs Wavelength (0.35-2.5 µm)</div>
+                        <img src="/plots/${mineralName}_reflectance_vs_wavelength.png" alt="${mineralName} Spectra">
+                    </div>
+                    
+                    <div class="download-buttons">
+                        <a href="/data/${mineralName}_spectra.csv" class="btn btn-primary">📥 Download Spectra Data (CSV)</a>
+                        <a href="/plots/${mineralName}_reflectance_vs_wavelength.png" class="btn btn-secondary" download>📥 Download Plot (PNG)</a>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                        <h3>About This Mineral</h3>
+                        <p>
+                            This mineral has been analyzed using the USGS ASD Spectrometer catalogue data.
+                            The plot shows individual sample measurements (light lines) and the average spectrum (thick line).
+                            AREF and RREF represent different reflectance measurement types.
+                        </p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>AREF:</strong> Absolute REFlectance - Direct reflectance measurement</li>
+                            <li><strong>RREF:</strong> Relative REFlectance - Reflectance relative to a standard</li>
+                        </ul>
+                    </div>
+                `;
+                
+                document.getElementById('content').innerHTML = html;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `<div class="error">Error loading mineral data: ${error.message}</div>`;
+                console.error('Error:', error);
+            }
+        }
+        
+        // Initialize
+        loadMinerals();
+    </script>
+</body>
+</html>
